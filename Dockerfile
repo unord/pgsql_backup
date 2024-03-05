@@ -15,4 +15,3 @@ RUN pip install --upgrade cython && pip install --upgrade pip
 RUN ln -sf /usr/share/zoneinfo/Europe/Copenhagen /etc/localtime
 RUN pip install -r ./requirements.txt
 
-RUN playwright install

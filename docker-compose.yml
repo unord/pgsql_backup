@@ -13,8 +13,6 @@ services:
       UPTIME_KUMA_URL_CHECK: ${UPTIME_KUMA_URL_CHECK}
       PROJECT_HOST_FOLDER: ${PROJECT_HOST_FOLDER}
       JSON_DB_CONFIG_FILE: ${JSON_DB_CONFIG_FILE}
-      JSON_DB_CONFIG_HOST_FOLDER: ${JSON_DB_CONFIG_FILE}
-      BASE_BACKUP_DIR: ${BASE_BACKUP_DIR}
       BASE_BACKUP_DIR_HOST_FOLDER: ${BASE_BACKUP_DIR}
       LOG_FILE: ${LOG_FILE}
       MAIN_LOOP_TIME: ${MAIN_LOOP_TIME}
@@ -24,5 +22,5 @@ services:
       #- /home/robo/docker-volumes/pgsql_backups/pgsql_backup.log:/app/src/logs/pgsql_backup.log
       - ${PROJECT_HOST_FOLDER}/${LOG_FILE}:/app/src/pgsql_backup.log
       #- /home/robo/docker-volumes/pgsql_backups/projects_backup_files:/app/src/projects_backup_files
-      - ${PROJECT_HOST_FOLDER}/${BASE_BACKUP_DIR}:/app/src/projects_backup_files
+      - ${PROJECT_HOST_FOLDER}/${BASE_BACKUP_DIR_HOST_FOLDER}:/app/src/projects_backup_files
 

@@ -23,6 +23,7 @@ MAIN_LOOP_TIME = import_env.get_env_variable("MAIN_LOOP_TIME")
 # get current version
 CURRENT_VERSION = read_version.get_version()
 
+
 def main():
     get_intro(DOCKER_REPO, CURRENT_VERSION, GITHUB_README, UPTIME_KUMA_URL, UPTIME_KUMA_URL_CHECK)
     logger = Logger(LOG_FILE)

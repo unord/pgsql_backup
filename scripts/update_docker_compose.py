@@ -1,7 +1,7 @@
 import yaml
 
-service_name = "worker"
-docker_image_name = "robounord/lectio_msg_tester"
+service_name = "worker" #Change this for your service name in docker-compose.yml
+docker_image_name = "robounord/pgsql_backups" #Change this for your docker image name "robounord/repo_name"
 
 def update_docker_compose(version: str) -> int:
     with open("docker-compose.yml", 'r') as f:
