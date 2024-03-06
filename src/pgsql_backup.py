@@ -24,7 +24,7 @@ class DatabaseBackup:
                 json.dump(configs, f, indent=4)
                 self.logger.log("Configuration file has been cleaned and saved.", tag="INFO")
         except Exception as e:
-            self.logger.log(f"Error saving cleaned config file: {e}", tag="ERROR")
+            self.logger.log(f"WARNING invisible character found, saving cleaned config file: {e}", tag="WARNING")
 
     def validate_config(self, configs):
         dirty = False
