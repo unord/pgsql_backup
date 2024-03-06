@@ -39,8 +39,10 @@ class DatabaseBackup:
         today_str = self.logger.get_timestamp().split(" ")[0].replace("-", "")
         # Construct the backup path using the base directory, project name, and date
         backup_path = os.path.join(self.base_backup_dir, project_name, today_str)
+        ic("backup_path", backup_path)
         if not os.path.exists(backup_path):
             os.makedirs(backup_path)
+            ic("Backup directory did not exist and therefore one was created")
             return backup_path
         return None
 
@@ -63,20 +65,22 @@ class DatabaseBackup:
             return True
 
     def backup_databases(self):
+        ic("Getting database configurations")
         configs = self.load_config()
+        ic("configs", configs)
         if not configs:
+            ic("No configurations found")
             return False
         all_successful = True
         for db_config in configs:
-            ic(db_config)
+            ic("Current db_config", db_config)
             if not self.dump_database(db_config):
                 all_successful = False
         return all_successful
 
     def run(self):
-        while True:
-            if self.backup_databases():
-                self.logger.log("All database backups completed successfully.", tag="SUCCESS")
+        if self.backup_databases():
+            self.logger.log("All database backups completed successfully.", tag="SUCCESS")
 
 
 
