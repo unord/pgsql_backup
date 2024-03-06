@@ -28,8 +28,11 @@ CURRENT_VERSION = read_version.get_version()
 def main():
     print(get_intro(DOCKER_REPO, CURRENT_VERSION, GITHUB_README, UPTIME_KUMA_URL, UPTIME_KUMA_URL_CHECK))
     ic("Starting log instance")
+    ic("Setting LOG_FILE", LOG_FILE)
     logger = Logger(LOG_FILE)
     ic("Starting DatabaseBackup instance")
+    ic("Setting JSON_DB_CONFIG_FILE", JSON_DB_CONFIG_FILE)
+    ic("Setting BASE_BACKUP_DIR_HOST_FOLDER", BASE_BACKUP_DIR_HOST_FOLDER)
     db_backup = DatabaseBackup(logger, JSON_DB_CONFIG_FILE, BASE_BACKUP_DIR_HOST_FOLDER)
     ic("Starting main loop that will create dayly backups of the databases.")
     while True:
