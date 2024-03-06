@@ -1,6 +1,7 @@
 # 3rd party imports
 from datetime import datetime
 import time
+from icecream import ic
 
 # local imports
 import import_env
@@ -25,12 +26,18 @@ CURRENT_VERSION = read_version.get_version()
 
 
 def main():
-    get_intro(DOCKER_REPO, CURRENT_VERSION, GITHUB_README, UPTIME_KUMA_URL, UPTIME_KUMA_URL_CHECK)
+    print(get_intro(DOCKER_REPO, CURRENT_VERSION, GITHUB_README, UPTIME_KUMA_URL, UPTIME_KUMA_URL_CHECK))
+    ic("Starting log instance")
     logger = Logger(LOG_FILE)
+    ic("Starting DatabaseBackup instance")
     db_backup = DatabaseBackup(logger, JSON_DB_CONFIG_FILE, BASE_BACKUP_DIR_HOST_FOLDER)
+    ic("Starting main loop that will create dayly backups of the databases.")
     while True:
+        ic("Running DatabaseBackup")
         db_backup.run()
+        ic("Pushing health check to uptime-kuma")
         push_health_check(UPTIME_KUMA_URL)
+        ic("Sleeping for MAIN_LOOP_TIME")
         time.sleep(int(MAIN_LOOP_TIME))
 
 

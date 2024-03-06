@@ -1,6 +1,7 @@
 import os
 import json
 import subprocess
+from icecream import ic
 
 
 class DatabaseBackup:
@@ -62,6 +63,7 @@ class DatabaseBackup:
             return False
         all_successful = True
         for db_config in configs:
+            ic(db_config)
             if not self.dump_database(db_config):
                 all_successful = False
         return all_successful
