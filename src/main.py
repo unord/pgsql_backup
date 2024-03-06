@@ -16,13 +16,15 @@ DOCKER_REPO = import_env.get_env_variable("DOCKER_REPO")
 GITHUB_README = import_env.get_env_variable("GITHUB_README")
 UPTIME_KUMA_URL = import_env.get_env_variable("UPTIME_KUMA_URL")
 UPTIME_KUMA_URL_CHECK = import_env.get_env_variable("UPTIME_KUMA_URL_CHECK")
-JSON_DB_CONFIG_FILE = import_env.get_env_variable("JSON_DB_CONFIG_FILE")
-BASE_BACKUP_DIR_HOST_FOLDER = import_env.get_env_variable("BASE_BACKUP_DIR_HOST_FOLDER")
-LOG_FILE = import_env.get_env_variable("LOG_FILE")
 MAIN_LOOP_TIME = import_env.get_env_variable("MAIN_LOOP_TIME")
 
 # get current version
 CURRENT_VERSION = read_version.get_version()
+
+# set file paths
+JSON_DB_CONFIG_FILE = "/app/src/json_db_config.json"
+LOG_FILE = "/app/src/pgsql_backup.log"
+BASE_BACKUP_DIR_HOST_FOLDER = "/app/src/projects_backup_files"
 
 
 def main():
@@ -31,8 +33,6 @@ def main():
     ic("Setting LOG_FILE", LOG_FILE)
     logger = Logger(LOG_FILE)
     ic("Starting DatabaseBackup instance")
-    ic("Setting JSON_DB_CONFIG_FILE", JSON_DB_CONFIG_FILE)
-    ic("Setting BASE_BACKUP_DIR_HOST_FOLDER", BASE_BACKUP_DIR_HOST_FOLDER)
     db_backup = DatabaseBackup(logger, JSON_DB_CONFIG_FILE, BASE_BACKUP_DIR_HOST_FOLDER)
     ic("Starting main loop that will create dayly backups of the databases.")
     while True:
