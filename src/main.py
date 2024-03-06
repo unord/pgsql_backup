@@ -16,8 +16,8 @@ GITHUB_README = import_env.get_env_variable("GITHUB_README")
 UPTIME_KUMA_URL = import_env.get_env_variable("UPTIME_KUMA_URL")
 UPTIME_KUMA_URL_CHECK = import_env.get_env_variable("UPTIME_KUMA_URL_CHECK")
 JSON_DB_CONFIG_FILE = import_env.get_env_variable("JSON_DB_CONFIG_FILE")
-BASE_BACKUP_DIR= import_env.get_env_variable("BASE_BACKUP_DIR")
-LOG_FILE= import_env.get_env_variable("LOG_FILE")
+BASE_BACKUP_DIR_HOST_FOLDER = import_env.get_env_variable("BASE_BACKUP_DIR")
+LOG_FILE = import_env.get_env_variable("LOG_FILE")
 MAIN_LOOP_TIME = import_env.get_env_variable("MAIN_LOOP_TIME")
 
 # get current version

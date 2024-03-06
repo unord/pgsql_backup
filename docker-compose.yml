@@ -5,7 +5,7 @@ services:
     container_name: pgsql_backups
     command: python src/main.py
     environment:
-      TZ: ${TIME_ZONE}
+      TZ: ${TIME_ZONE} #Europe/Copenhagen
       DOCKER_REPO: ${DOCKER_REPO}
       DOCKER_CONTAINER: ${DOCKER_CONTAINER}
       GITHUB_README: ${GITHUB_README}
@@ -17,6 +17,7 @@ services:
       LOG_FILE: ${LOG_FILE}
       MAIN_LOOP_TIME: ${MAIN_LOOP_TIME}
     volumes:
-    - ${PROJECT_HOST_FOLDER}/${JSON_DB_CONFIG_FILE}:/app/src/json_db_config.json
-    - ${PROJECT_HOST_FOLDER}/${LOG_FILE}:/app/src/pgsql_backup.log
-    - ${PROJECT_HOST_FOLDER}/${BASE_BACKUP_DIR_HOST_FOLDER}:/app/src/projects_backup_files
+      - ${PROJECT_HOST_FOLDER}/${JSON_DB_CONFIG_FILE}:/app/src/json_db_config.json
+      - ${PROJECT_HOST_FOLDER}/${LOG_FILE}:/app/src/pgsql_backup.log
+      - ${PROJECT_HOST_FOLDER}/${BASE_BACKUP_DIR_HOST_FOLDER}:/app/src/projects_backup_files
+
