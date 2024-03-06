@@ -46,14 +46,19 @@ class DatabaseBackup:
 
     def dump_database(self, db_config):
         backup_path = self.create_backup_dir(db_config["project_name"])
+        ic("backup_path", backup_path)
         if backup_path:
             # Command to dump the database, ensuring the password is passed securely
             dump_command = f"pg_dump -h {db_config['host']} -p {db_config['port']} -U {db_config['user']} -F c -b -v -f \"{os.path.join(backup_path, db_config['name'] + '.sql')}\" {db_config['name']}"
             try:
                 subprocess.run(dump_command, check=True, shell=True, text=True, capture_output=True, env={"PGPASSWORD": db_config['password']})
+                ic("Dump command successful")
+                ic("dump_command", dump_command)
                 self.logger.log(f"Backup successful for project: {db_config['project_name']}, database: {db_config['name']}", tag="SUCCESS")
             except subprocess.CalledProcessError as e:
                 self.logger.log(f"Backup failed for project: {db_config['project_name']}, database: {db_config['name']}. Error: {e.stderr.strip()}", tag="ERROR")
+                ic("Dump command failed")
+                ic("dump_command", dump_command)
                 return False
             return True
 
