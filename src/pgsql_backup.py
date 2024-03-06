@@ -2,6 +2,7 @@ import os
 import json
 import subprocess
 from icecream import ic
+import re
 
 
 class DatabaseBackup:
@@ -12,12 +13,25 @@ class DatabaseBackup:
         self.base_backup_dir = base_backup_dir
 
 
+    def clean_string(self, value):
+        """Remove non-printable characters from a string."""
+        # This regex matches all non-printable characters except whitespace chars
+        return re.sub(r'[^\x20-\x7E]+', '', value)
+
     def validate_config(self, configs):
         for config in configs:
             required_keys = ["project_name", "name", "host", "port", "user", "password"]
-            if not all(key in config for key in required_keys):
-                self.logger.log("Invalid configuration: Missing required keys", tag="ERROR")
-                return False
+            # Check for required keys and clean the strings
+            for key in required_keys:
+                if key not in config:
+                    self.logger.log(f"Invalid configuration: Missing required key {key}", tag="ERROR")
+                    return False
+                if isinstance(config[key], str):
+                    cleaned_value = self.clean_string(config[key])
+                    if cleaned_value != config[key]:
+                        self.logger.log(f"Hidden characters removed from {key} in {config['project_name']}", tag="WARNING")
+                    # Optionally update the config value with the cleaned string
+                    config[key] = cleaned_value
         return True
 
     def load_config(self):
