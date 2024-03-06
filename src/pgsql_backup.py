@@ -9,29 +9,39 @@ class DatabaseBackup:
     def __init__(self, logger, config_file="db_config.json", base_backup_dir="database_backup"):
         self.config_file = config_file
         self.logger = logger
-        # Set the base directory to 'database_backup'
         self.base_backup_dir = base_backup_dir
 
 
     def clean_string(self, value):
         """Remove non-printable characters from a string."""
         # This regex matches all non-printable characters except whitespace chars
-        return re.sub(r'[^\x20-\x7E]+', '', value)
+        return re.sub(r'[^\x20-\x7E]+', '', value), re.search(r'[^\x20-\x7E]+', value) is not None
+
+    def save_cleaned_config(self, configs):
+        """Save the cleaned config back to the file in a pretty format."""
+        try:
+            with open(self.config_file, "w") as f:
+                json.dump(configs, f, indent=4)
+                self.logger.log("Configuration file has been cleaned and saved.", tag="INFO")
+        except Exception as e:
+            self.logger.log(f"Error saving cleaned config file: {e}", tag="ERROR")
 
     def validate_config(self, configs):
+        dirty = False
         for config in configs:
             required_keys = ["project_name", "name", "host", "port", "user", "password"]
-            # Check for required keys and clean the strings
             for key in required_keys:
                 if key not in config:
                     self.logger.log(f"Invalid configuration: Missing required key {key}", tag="ERROR")
                     return False
                 if isinstance(config[key], str):
-                    cleaned_value = self.clean_string(config[key])
-                    if cleaned_value != config[key]:
-                        self.logger.log(f"Hidden characters removed from {key} in {config['project_name']}", tag="WARNING")
-                    # Optionally update the config value with the cleaned string
+                    cleaned_value, is_dirty = self.clean_string(config[key])
                     config[key] = cleaned_value
+                    dirty = dirty or is_dirty
+                    if is_dirty:
+                        self.logger.log(f"Invisible characters removed from {key} in {config['project_name']}", tag="WARNING")
+        if dirty:
+            self.save_cleaned_config(configs)
         return True
 
     def load_config(self):
@@ -47,6 +57,8 @@ class DatabaseBackup:
         except Exception as e:
             self.logger.log(f"Error loading config file: {e}", tag="ERROR")
         return None
+        return True
+
 
     def create_backup_dir(self, project_name):
         # Format the date as 'YYYYMMDD'
