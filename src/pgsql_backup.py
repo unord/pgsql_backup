@@ -51,7 +51,7 @@ class DatabaseBackup:
         ic("backup_path", backup_path)
         if backup_path:
             # Command to dump the database, ensuring the password is passed securely
-            dump_command = f"pg_dump -h {db_config['host']} -p {db_config['port']} -U {db_config['user']} -F c -b -v -f \"{os.path.join(backup_path, db_config['name'] + '.sql')}\" {db_config['name']}"
+            dump_command = f"pg_dump -h {db_config['host']} -p {db_config['port']} -U {db_config['user']} -F p -b -v -f \"{os.path.join(backup_path, db_config['name'] + '.sql')}\" {db_config['name']}"
             try:
                 subprocess.run(dump_command, check=True, shell=True, text=True, capture_output=True, env={"PGPASSWORD": db_config['password']})
                 ic("Dump command successful")
