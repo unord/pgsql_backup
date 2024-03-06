@@ -16,7 +16,7 @@ GITHUB_README = import_env.get_env_variable("GITHUB_README")
 UPTIME_KUMA_URL = import_env.get_env_variable("UPTIME_KUMA_URL")
 UPTIME_KUMA_URL_CHECK = import_env.get_env_variable("UPTIME_KUMA_URL_CHECK")
 JSON_DB_CONFIG_FILE = import_env.get_env_variable("JSON_DB_CONFIG_FILE")
-BASE_BACKUP_DIR_HOST_FOLDER = import_env.get_env_variable("BASE_BACKUP_DIR")
+BASE_BACKUP_DIR_HOST_FOLDER = import_env.get_env_variable("BASE_BACKUP_DIR_HOST_FOLDER")
 LOG_FILE = import_env.get_env_variable("LOG_FILE")
 MAIN_LOOP_TIME = import_env.get_env_variable("MAIN_LOOP_TIME")
 
@@ -27,7 +27,7 @@ CURRENT_VERSION = read_version.get_version()
 def main():
     get_intro(DOCKER_REPO, CURRENT_VERSION, GITHUB_README, UPTIME_KUMA_URL, UPTIME_KUMA_URL_CHECK)
     logger = Logger(LOG_FILE)
-    db_backup = DatabaseBackup(logger, JSON_DB_CONFIG_FILE, BASE_BACKUP_DIR)
+    db_backup = DatabaseBackup(logger, JSON_DB_CONFIG_FILE, BASE_BACKUP_DIR_HOST_FOLDER)
     while True:
         db_backup.run()
         push_health_check(UPTIME_KUMA_URL)
