@@ -3,6 +3,7 @@ import json
 import subprocess
 from icecream import ic
 import re
+import codecs
 
 
 class DatabaseBackup:
@@ -11,20 +12,20 @@ class DatabaseBackup:
         self.logger = logger
         self.base_backup_dir = base_backup_dir
 
-
     def clean_string(self, value):
         """Remove non-printable characters from a string."""
         # This regex matches all non-printable characters except whitespace chars
-        return re.sub(r'[^\x20-\x7E]+', '', value), re.search(r'[^\x20-\x7E]+', value) is not None
+        cleaned_value = re.sub(r'[^\x20-\x7E]+', '', value)
+        return cleaned_value, cleaned_value != value
 
     def save_cleaned_config(self, configs):
         """Save the cleaned config back to the file in a pretty format."""
         try:
-            with open(self.config_file, "w") as f:
+            with open(self.config_file, "w", encoding='utf-8') as f:
                 json.dump(configs, f, indent=4)
-                self.logger.log("Configuration file has been cleaned and saved.", tag="INFO")
+                self.logger.log("Wrong encoding in configuration file has been cleaned and saved.", tag="WARNING")
         except Exception as e:
-            self.logger.log(f"WARNING invisible character found, saving cleaned config file: {e}", tag="WARNING")
+            self.logger.log(f"Error saving cleaned config file: {e}", tag="ERROR")
 
     def validate_config(self, configs):
         dirty = False
@@ -44,9 +45,22 @@ class DatabaseBackup:
             self.save_cleaned_config(configs)
         return True
 
-    def load_config(self):
+    def ensure_utf8_encoding(self):
+        """Ensure configuration file is UTF-8 encoded."""
         try:
-            with open(self.config_file, "r") as f:
+            with open(self.config_file, 'r', encoding='utf-8') as f:
+                f.read()
+        except UnicodeDecodeError:
+            with open(self.config_file, 'r', encoding='utf-8-sig') as f:
+                content = f.read()
+            with open(self.config_file, 'w', encoding='utf-8') as f:
+                f.write(content)
+            self.logger.log("Converted configuration file to UTF-8 encoding.", tag="INFO")
+
+    def load_config(self):
+        self.ensure_utf8_encoding()
+        try:
+            with open(self.config_file, "r", encoding='utf-8') as f:
                 configs = json.load(f)
                 if self.validate_config(configs):
                     return configs
@@ -57,7 +71,6 @@ class DatabaseBackup:
         except Exception as e:
             self.logger.log(f"Error loading config file: {e}", tag="ERROR")
         return None
-        return True
 
 
     def create_backup_dir(self, project_name):

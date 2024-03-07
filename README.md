@@ -59,7 +59,8 @@ The tool expects a JSON configuration file specifying the databases to back up. 
 ```json
 [
   {
-    "project_name": "Project1",
+    "project_name": "Project1", 
+    "description": "En beskrivelse af hvad databasen bruges til. Og hvor den ligger henne",
     "name": "db_name1",
     "host": "localhost",
     "port": "5432",
