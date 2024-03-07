@@ -1,10 +1,8 @@
 import os
 import json
 import subprocess
-from icecream import ic
 import re
-import codecs
-
+from icecream import ic
 
 class DatabaseBackup:
     def __init__(self, logger, config_file="db_config.json", base_backup_dir="database_backup"):
@@ -18,14 +16,19 @@ class DatabaseBackup:
         cleaned_value = re.sub(r'[^\x20-\x7E]+', '', value)
         return cleaned_value, cleaned_value != value
 
-    def save_cleaned_config(self, configs):
-        """Save the cleaned config back to the file in a pretty format."""
+    def ensure_utf8_no_bom(self):
+        """Ensure file is UTF-8 without BOM and fix if needed."""
         try:
-            with open(self.config_file, "w", encoding='utf-8') as f:
-                json.dump(configs, f, indent=4)
-                self.logger.log("Configuration file has been cleaned and saved.", tag="INFO")
+            with open(self.config_file, 'r', encoding='utf-8-sig') as f:
+                content = f.read()
+            # Detect if BOM was present and removed by 'utf-8-sig'
+            if content.startswith(u'\ufeff'):
+                self.logger.log("UTF-8 BOM found and removed from the configuration file.", tag="WARNING")
+            # Save the file without BOM in UTF-8 encoding
+            with open(self.config_file, 'w', encoding='utf-8') as f:
+                f.write(content)
         except Exception as e:
-            self.logger.log(f"Error saving cleaned config file: {e}", tag="ERROR")
+            self.logger.log(f"Error processing config file for UTF-8 BOM: {e}", tag="ERROR")
 
     def validate_config(self, configs):
         dirty = False
@@ -38,27 +41,24 @@ class DatabaseBackup:
                 if isinstance(config[key], str):
                     cleaned_value, is_dirty = self.clean_string(config[key])
                     config[key] = cleaned_value
-                    dirty = dirty or is_dirty
+                    dirty |= is_dirty
                     if is_dirty:
                         self.logger.log(f"Invisible characters removed from {key} in {config['project_name']}", tag="WARNING")
         if dirty:
             self.save_cleaned_config(configs)
         return True
 
-    def ensure_utf8_encoding(self):
-        """Ensure configuration file is UTF-8 encoded."""
+    def save_cleaned_config(self, configs):
+        """Save the cleaned config back to the file in a pretty format."""
         try:
-            with open(self.config_file, 'r', encoding='utf-8') as f:
-                f.read()
-        except UnicodeDecodeError:
-            with open(self.config_file, 'r', encoding='utf-8-sig') as f:
-                content = f.read()
-            with open(self.config_file, 'w', encoding='utf-8') as f:
-                f.write(content)
-            self.logger.log("Wrong encoding detected in configuration file. Converted configuration file to UTF-8 encoding.", tag="WARNING")
+            with open(self.config_file, "w", encoding='utf-8') as f:
+                json.dump(configs, f, indent=4)
+                self.logger.log("Configuration file has been cleaned and saved.", tag="INFO")
+        except Exception as e:
+            self.logger.log(f"Error saving cleaned config file: {e}", tag="ERROR")
 
     def load_config(self):
-        self.ensure_utf8_encoding()
+        self.ensure_utf8_no_bom()
         try:
             with open(self.config_file, "r", encoding='utf-8') as f:
                 configs = json.load(f)
