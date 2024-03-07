@@ -49,11 +49,12 @@ class DatabaseBackup:
         return True
 
     def save_cleaned_config(self, configs):
-        """Save the cleaned config back to the file in a pretty format."""
+        """Save the cleaned config back to the file in a pretty format, ensuring no extra newline is added."""
         try:
             with open(self.config_file, "w", encoding='utf-8') as f:
-                json.dump(configs, f, indent=4)
-                self.logger.log("Configuration file has been cleaned and saved.", tag="INFO")
+                # Dump the JSON, then explicitly strip trailing newlines and add a single newline at the end
+                content = json.dumps(configs, indent=4)
+                f.write(content.rstrip('\n') + '\n')
         except Exception as e:
             self.logger.log(f"Error saving cleaned config file: {e}", tag="ERROR")
 
