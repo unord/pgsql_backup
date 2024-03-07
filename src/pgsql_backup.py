@@ -23,7 +23,7 @@ class DatabaseBackup:
         try:
             with open(self.config_file, "w", encoding='utf-8') as f:
                 json.dump(configs, f, indent=4)
-                self.logger.log("Wrong encoding in configuration file has been cleaned and saved.", tag="WARNING")
+                self.logger.log("Configuration file has been cleaned and saved.", tag="INFO")
         except Exception as e:
             self.logger.log(f"Error saving cleaned config file: {e}", tag="ERROR")
 
@@ -55,7 +55,7 @@ class DatabaseBackup:
                 content = f.read()
             with open(self.config_file, 'w', encoding='utf-8') as f:
                 f.write(content)
-            self.logger.log("Converted configuration file to UTF-8 encoding.", tag="INFO")
+            self.logger.log("Wrong encoding detected in configuration file. Converted configuration file to UTF-8 encoding.", tag="WARNING")
 
     def load_config(self):
         self.ensure_utf8_encoding()
