@@ -80,7 +80,6 @@ class DatabaseBackup:
             self.logger.log(f"Error loading config file: {e}", tag="ERROR")
         return None
 
-
     def create_backup_dir(self, project_name):
         # Format the date as 'YYYYMMDD'
         today_str = self.logger.get_timestamp().split(" ")[0].replace("-", "")
@@ -90,8 +89,9 @@ class DatabaseBackup:
         if not os.path.exists(backup_path):
             os.makedirs(backup_path)
             ic("Backup directory did not exist and therefore one was created")
-            return backup_path
-        return None
+        else:
+            ic("Backup directory already exists")
+        return backup_path  # Always return the backup path
 
     def dump_database(self, db_config):
         backup_path = self.create_backup_dir(db_config["project_name"])
