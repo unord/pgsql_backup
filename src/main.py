@@ -44,6 +44,7 @@ def main():
         else:
             ic("Backup failed; not pushing health check to uptime-kuma")
         ic("Sleeping for MAIN_LOOP_TIME")
+    time.sleep(int(MAIN_LOOP_TIME))
 
 
 if __name__ == '__main__':
