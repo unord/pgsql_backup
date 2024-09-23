@@ -120,6 +120,7 @@ class DatabaseBackup:
 
     def run(self):
         success = self.backup_databases()
+        # Log the overall success or failure of the backup process
         if success:
             self.logger.log("All database backups completed successfully.", tag="SUCCESS")
         else:
