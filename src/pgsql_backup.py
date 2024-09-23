@@ -97,19 +97,46 @@ class DatabaseBackup:
         backup_path = self.create_backup_dir(db_config["project_name"])
         ic("backup_path", backup_path)
         if backup_path:
-            # Command to dump the database, ensuring the password is passed securely
-            dump_command = f"pg_dump -h {db_config['host']} -p {db_config['port']} -U {db_config['user']} -F p -b -v -f \"{os.path.join(backup_path, db_config['name'] + '.sql')}\" {db_config['name']}"
-            try:
-                subprocess.run(dump_command, check=True, shell=True, text=True, capture_output=True, env={"PGPASSWORD": db_config['password']})
-                ic("Dump command successful")
-                ic("dump_command", dump_command)
-                self.logger.log(f"Backup successful for project: {db_config['project_name']}, database: {db_config['name']}", tag="SUCCESS")
-            except subprocess.CalledProcessError as e:
-                self.logger.log(f"Backup failed for project: {db_config['project_name']}, database: {db_config['name']}. Error: {e.stderr.strip()}", tag="ERROR")
-                ic("Dump command failed")
-                ic("dump_command", dump_command)
-                return False
-            return True
+            backup_file = os.path.join(backup_path, db_config['name'] + '.sql')
+            if os.path.exists(backup_file):
+                # Backup already exists for today
+                self.logger.log(
+                    f"Backup already exists for project: {db_config['project_name']}, database: {db_config['name']}",
+                    tag="INFO")
+                return True
+            else:
+                # Proceed with backup
+                dump_command = [
+                    "pg_dump",
+                    "-h", db_config['host'],
+                    "-p", str(db_config['port']),
+                    "-U", db_config['user'],
+                    "-F", "p",
+                    "-b",
+                    "-v",
+                    "-f", backup_file,
+                    db_config['name']
+                ]
+                try:
+                    subprocess.run(dump_command, check=True, text=True, capture_output=True,
+                                   env={"PGPASSWORD": db_config['password']})
+                    ic("Dump command successful")
+                    ic("dump_command", ' '.join(dump_command))
+                    self.logger.log(
+                        f"Backup successful for project: {db_config['project_name']}, database: {db_config['name']}",
+                        tag="SUCCESS")
+                    return True
+                except subprocess.CalledProcessError as e:
+                    error_message = e.stderr.strip() if e.stderr else str(e)
+                    self.logger.log(
+                        f"Backup failed for project: {db_config['project_name']}, database: {db_config['name']}. Error: {error_message}",
+                        tag="ERROR")
+                    ic("Dump command failed")
+                    ic("dump_command", ' '.join(dump_command))
+                    return False
+        else:
+            self.logger.log(f"Failed to create or access backup directory for {db_config['project_name']}", tag="ERROR")
+            return False
 
     def backup_databases(self):
         ic("Getting database configurations")
