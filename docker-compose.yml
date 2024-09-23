@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   worker:
-    image: robounord/pgsql_backups:1.22
+    image: robounord/pgsql_backups:1.23
     container_name: pgsql_backups
     command: python src/main.py
     environment:
