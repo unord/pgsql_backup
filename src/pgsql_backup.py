@@ -119,8 +119,12 @@ class DatabaseBackup:
         return all_successful
 
     def run(self):
-        if self.backup_databases():
+        success = self.backup_databases()
+        if success:
             self.logger.log("All database backups completed successfully.", tag="SUCCESS")
+        else:
+            self.logger.log("Some database backups failed.", tag="ERROR")
+        return success
 
 
 

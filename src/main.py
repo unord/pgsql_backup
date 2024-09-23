@@ -34,14 +34,16 @@ def main():
     logger = Logger(LOG_FILE)
     ic("Starting DatabaseBackup instance")
     db_backup = DatabaseBackup(logger, JSON_DB_CONFIG_FILE, BASE_BACKUP_DIR_HOST_FOLDER)
-    ic("Starting main loop that will create dayly backups of the databases.")
+    ic("Starting main loop that will create daily backups of the databases.")
     while True:
         ic("Running DatabaseBackup")
-        db_backup.run()
-        ic("Pushing health check to uptime-kuma")
-        push_health_check(UPTIME_KUMA_URL)
+        backup_success = db_backup.run()
+        if backup_success:
+            ic("Pushing health check to uptime-kuma")
+            push_health_check(UPTIME_KUMA_URL)
+        else:
+            ic("Backup failed; not pushing health check to uptime-kuma")
         ic("Sleeping for MAIN_LOOP_TIME")
-        time.sleep(int(MAIN_LOOP_TIME))
 
 
 if __name__ == '__main__':
