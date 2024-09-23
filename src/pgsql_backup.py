@@ -16,20 +16,6 @@ class DatabaseBackup:
         cleaned_value = re.sub(r'[^\x20-\x7E]+', '', value)
         return cleaned_value, cleaned_value != value
 
-    def ensure_utf8_no_bom(self):
-        """Ensure file is UTF-8 without BOM and fix if needed."""
-        try:
-            with open(self.config_file, 'r', encoding='utf-8-sig') as f:
-                content = f.read()
-            # Detect if BOM was present and removed by 'utf-8-sig'
-            if content.startswith(u'\ufeff'):
-                self.logger.log("UTF-8 BOM found and removed from the configuration file.", tag="WARNING")
-            # Save the file without BOM in UTF-8 encoding
-            with open(self.config_file, 'w', encoding='utf-8') as f:
-                f.write(content)
-        except Exception as e:
-            self.logger.log(f"Error processing config file for UTF-8 BOM: {e}", tag="ERROR")
-
     def validate_config(self, configs):
         dirty = False
         for config in configs:
@@ -59,14 +45,34 @@ class DatabaseBackup:
             self.logger.log(f"Error saving cleaned config file: {e}", tag="ERROR")
 
     def load_config(self):
-        self.ensure_utf8_no_bom()
         try:
-            with open(self.config_file, "r", encoding='utf-8') as f:
-                configs = json.load(f)
-                if self.validate_config(configs):
-                    return configs
-                else:
-                    self.logger.log("Configuration validation failed.", tag="ERROR")
+            # Read the raw bytes of the config file
+            with open(self.config_file, 'rb') as f:
+                raw_data = f.read()
+
+            # Detect the encoding
+            result = chardet.detect(raw_data)
+            encoding = result['encoding']
+            confidence = result['confidence']
+
+            if encoding is None or confidence < 0.5:
+                self.logger.log("Unable to detect encoding of config file reliably.", tag="ERROR")
+                return None
+
+            self.logger.log(f"Detected encoding '{encoding}' with confidence {confidence}.", tag="INFO")
+
+            # Decode the content using the detected encoding
+            content = raw_data.decode(encoding)
+
+            # Parse the JSON content
+            configs = json.loads(content)
+
+            if self.validate_config(configs):
+                return configs
+            else:
+                self.logger.log("Configuration validation failed.", tag="ERROR")
+                return None
+
         except json.JSONDecodeError as e:
             self.logger.log(f"JSON decode error in config file: {e}", tag="ERROR")
         except Exception as e:
