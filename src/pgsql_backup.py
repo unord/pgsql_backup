@@ -1,3 +1,4 @@
+import chardet
 import os
 import json
 import subprocess
